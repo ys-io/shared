@@ -1,4 +1,9 @@
-import { View, TextInput as RNTextInput, StyleSheet } from "react-native";
+import {
+  View,
+  Text as RNText,
+  TextInput as RNTextInput,
+  StyleSheet,
+} from "react-native";
 import { Text } from "./Text";
 import { useTheme } from "../theme";
 import type { TextInputProps } from "../types";
@@ -11,12 +16,13 @@ export function TextInput({
   ...rest
 }: TextInputProps) {
   const theme = useTheme();
+  const hasError = !!error;
 
   const styles = StyleSheet.create({
     container: {},
     input: {
       borderWidth: 1,
-      borderColor: error ? theme.colors.danger : theme.colors.border,
+      borderColor: hasError ? theme.colors.danger : theme.colors.border,
       borderRadius: theme.radii.md,
       padding: theme.spacing.md,
       fontSize: theme.fontSizes.md,
@@ -25,28 +31,26 @@ export function TextInput({
     label: {
       marginBottom: theme.spacing.xs,
     },
-    error: {
+    errorText: {
       marginTop: theme.spacing.xs,
+      color: theme.colors.danger,
+      fontSize: theme.fontSizes.sm,
     },
   });
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
+      {label ? (
         <Text variant="body" style={styles.label}>
           {label}
         </Text>
-      )}
+      ) : null}
       <RNTextInput
         placeholderTextColor={theme.colors.placeholder}
         style={[styles.input, style]}
         {...rest}
       />
-      {error && (
-        <Text variant="caption" color={theme.colors.danger} style={styles.error}>
-          {error}
-        </Text>
-      )}
+      {hasError ? <RNText style={styles.errorText}>{error}</RNText> : null}
     </View>
   );
 }
