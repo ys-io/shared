@@ -6,7 +6,10 @@ export type { ThemeTokens } from "./types";
 export { Button } from "./components/Button";
 export { TextInput } from "./components/TextInput";
 export { Text } from "./components/Text";
-export { ScreenContainer } from "./components/ScreenContainer";
+export { Screen } from "./components/Screen";
+export { Header } from "./components/Header";
+export { Body } from "./components/Body";
+export { Footer } from "./components/Footer";
 export { LoadingScreen } from "./components/LoadingScreen";
 export { Divider } from "./components/Divider";
 
@@ -15,7 +18,10 @@ export type {
   ButtonProps,
   TextInputProps,
   TextProps,
-  ScreenContainerProps,
+  ScreenProps,
+  HeaderProps,
+  BodyProps,
+  FooterProps,
   LoadingScreenProps,
   DividerProps,
 } from "./types";

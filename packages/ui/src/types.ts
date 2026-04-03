@@ -76,9 +76,25 @@ export interface TextProps extends RNTextProps {
   children: ReactNode;
 }
 
-export interface ScreenContainerProps {
+export interface ScreenProps {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface HeaderProps {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface BodyProps {
   children: ReactNode;
   centered?: boolean;
+  scroll?: boolean;
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface FooterProps {
+  children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
