@@ -23,6 +23,7 @@ export interface ThemeTokens {
     border: string;
     borderLight: string;
     placeholder: string;
+    focus: string;
   };
   spacing: {
     xs: number;

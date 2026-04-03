@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Platform } from "react-native";
 import { Text } from "./Text";
 import { useTheme } from "../theme";
 import type { ButtonProps } from "../types";
@@ -14,30 +14,34 @@ export function Button({
 }: ButtonProps) {
   const theme = useTheme();
 
+  const base = {
+    borderRadius: theme.radii.lg,
+    alignItems: "center" as const,
+    ...(Platform.OS === "web" ? { outlineStyle: "none" } : {}),
+  } as any;
+
   const variants = StyleSheet.create({
     primary: {
+      ...base,
       backgroundColor: theme.colors.surface,
-      borderRadius: theme.radii.lg,
       paddingVertical: 18,
-      alignItems: "center" as const,
     },
     outline: {
+      ...base,
       backgroundColor: "transparent",
       borderWidth: 1,
       borderColor: theme.colors.border,
-      borderRadius: theme.radii.lg,
       paddingVertical: 18,
-      alignItems: "center" as const,
     },
     ghost: {
+      ...base,
       backgroundColor: "transparent",
       paddingVertical: 14,
-      alignItems: "center" as const,
     },
     danger: {
+      ...base,
       backgroundColor: "transparent",
       paddingVertical: 14,
-      alignItems: "center" as const,
     },
   });
 

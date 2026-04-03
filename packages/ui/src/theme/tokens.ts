@@ -14,6 +14,7 @@ export const defaultTheme: ThemeTokens = {
     border: "#dddddd",
     borderLight: "#eeeeee",
     placeholder: "#cccccc",
+    focus: "#6366f1",
   },
   spacing: {
     xs: 4,

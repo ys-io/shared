@@ -5,6 +5,7 @@ import {
   TextInput as RNTextInput,
   Pressable,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { Text } from "./Text";
 import { useTheme } from "../theme";
@@ -18,6 +19,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     const theme = useTheme();
     const hasError = !!error;
     const [hidden, setHidden] = useState(true);
+    const [focused, setFocused] = useState(false);
 
     const isSecure = secureTextEntry && hidden;
 
@@ -27,8 +29,12 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: theme.colors.surface,
-        borderWidth: hasError ? 1 : 0,
-        borderColor: hasError ? theme.colors.danger : "transparent",
+        borderWidth: hasError ? 1 : focused ? 1 : 0,
+        borderColor: hasError
+          ? theme.colors.danger
+          : focused
+            ? theme.colors.focus
+            : "transparent",
         borderRadius: theme.radii.lg,
         paddingHorizontal: theme.spacing.lg,
       },
@@ -37,7 +43,8 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         paddingVertical: theme.spacing.lg,
         fontSize: theme.fontSizes.md,
         color: theme.colors.textPrimary,
-      },
+        ...(Platform.OS === "web" ? { outlineStyle: "none" } : {}),
+      } as any,
       label: {
         marginBottom: theme.spacing.sm,
         color: theme.colors.textMuted,
@@ -68,6 +75,14 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             ref={ref}
             placeholderTextColor={theme.colors.placeholder}
             secureTextEntry={isSecure}
+            onFocus={(e) => {
+              setFocused(true);
+              rest.onFocus?.(e);
+            }}
+            onBlur={(e) => {
+              setFocused(false);
+              rest.onBlur?.(e);
+            }}
             style={[styles.input, style]}
             {...rest}
           />
