@@ -10,6 +10,7 @@
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2",
     "@types/react": "^18",
     "react": "^18",
     "tsup": "^8",
