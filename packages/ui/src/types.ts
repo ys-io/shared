@@ -66,6 +66,7 @@ export interface ButtonProps {
 export interface TextInputProps extends RNTextInputProps {
   label?: string;
   error?: string;
+  showPasswordToggle?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
 }
 

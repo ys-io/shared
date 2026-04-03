@@ -16,33 +16,33 @@ export function Button({
 
   const variants = StyleSheet.create({
     primary: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.radii.md,
-      padding: 14,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radii.lg,
+      paddingVertical: 18,
       alignItems: "center" as const,
     },
     outline: {
       backgroundColor: "transparent",
       borderWidth: 1,
       borderColor: theme.colors.border,
-      borderRadius: theme.radii.md,
-      padding: 14,
+      borderRadius: theme.radii.lg,
+      paddingVertical: 18,
       alignItems: "center" as const,
     },
     ghost: {
       backgroundColor: "transparent",
-      padding: 14,
+      paddingVertical: 14,
       alignItems: "center" as const,
     },
     danger: {
       backgroundColor: "transparent",
-      padding: 14,
+      paddingVertical: 14,
       alignItems: "center" as const,
     },
   });
 
   const textColors: Record<string, string> = {
-    primary: theme.colors.primaryForeground,
+    primary: theme.colors.textPrimary,
     outline: theme.colors.textPrimary,
     ghost: theme.colors.textSecondary,
     danger: theme.colors.danger,
@@ -70,6 +70,7 @@ export function Button({
             {
               color: textColors[variant],
               fontWeight: theme.fontWeights.semibold,
+              fontSize: theme.fontSizes.md,
             },
             textStyle,
           ]}
