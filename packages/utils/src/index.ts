@@ -1,1 +1,5 @@
-// TODO: 공통 유틸리티 export
+export { apiCall } from "./api";
+export type { ApiResult } from "./api";
+
+export { validate } from "./validation";
+export type { ValidationResult } from "./validation";
