@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ActivityIndicator, Pressable, View, StyleSheet } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Pressable, View, StyleSheet, Platform } from "react-native";
 import { Text } from "./Text";
 import { useTheme } from "../theme";
 import type { ButtonProps } from "../types";
@@ -16,6 +16,20 @@ export function Button({
 }: ButtonProps) {
   const theme = useTheme();
   const [focused, setFocused] = useState(false);
+  const pressableRef = useRef<View>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || !pressableRef.current) return;
+    const el = pressableRef.current as unknown as HTMLElement;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === " " && !disabled && !loading) {
+        e.preventDefault();
+        onPress();
+      }
+    };
+    el.addEventListener("keydown", handler);
+    return () => el.removeEventListener("keydown", handler);
+  }, [onPress, disabled, loading]);
 
   const base = {
     borderRadius: theme.radii.lg,
@@ -65,6 +79,7 @@ export function Button({
 
   return (
     <Pressable
+      ref={pressableRef}
       onPress={onPress}
       disabled={isDisabled}
       onFocus={() => setFocused(true)}
