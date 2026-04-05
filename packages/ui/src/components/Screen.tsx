@@ -45,6 +45,8 @@ export function Screen({ children, scroll = false, style }: ScreenProps) {
       <SafeAreaView style={[styles.outer, style]}>
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, alignItems: "center" }}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
         >
           <View style={[styles.inner, { flex: undefined }]}>{children}</View>
         </ScrollView>
