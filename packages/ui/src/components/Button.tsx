@@ -18,8 +18,7 @@ export function Button({
   const base = {
     borderRadius: theme.radii.lg,
     alignItems: "center" as const,
-    ...(Platform.OS === "web" ? { outlineStyle: "none" } : {}),
-  } as any;
+  };
 
   const variants = StyleSheet.create({
     primary: {
