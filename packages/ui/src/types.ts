@@ -60,6 +60,7 @@ export interface ButtonProps {
   title: string;
   onPress: () => void;
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+  icon?: ReactNode;
   disabled?: boolean;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;

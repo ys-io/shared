@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet, Platform } from "react-native";
+import { ActivityIndicator, Pressable, View, StyleSheet, Platform } from "react-native";
 import { Text } from "./Text";
 import { useTheme } from "../theme";
 import type { ButtonProps } from "../types";
@@ -7,6 +7,7 @@ export function Button({
   title,
   onPress,
   variant = "primary",
+  icon,
   disabled = false,
   loading = false,
   style,
@@ -74,19 +75,22 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={textColors[variant]} />
       ) : (
-        <Text
-          variant="body"
-          style={[
-            {
-              color: textColors[variant],
-              fontWeight: theme.fontWeights.semibold,
-              fontSize: theme.fontSizes.md,
-            },
-            textStyle,
-          ]}
-        >
-          {title}
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          {icon}
+          <Text
+            variant="body"
+            style={[
+              {
+                color: textColors[variant],
+                fontWeight: theme.fontWeights.semibold,
+                fontSize: theme.fontSizes.md,
+              },
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        </View>
       )}
     </Pressable>
   );
