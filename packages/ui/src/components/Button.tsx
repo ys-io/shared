@@ -1,4 +1,5 @@
-import { ActivityIndicator, Pressable, View, StyleSheet, Platform } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Pressable, View, StyleSheet } from "react-native";
 import { Text } from "./Text";
 import { useTheme } from "../theme";
 import type { ButtonProps } from "../types";
@@ -14,39 +15,41 @@ export function Button({
   textStyle,
 }: ButtonProps) {
   const theme = useTheme();
+  const [focused, setFocused] = useState(false);
 
   const base = {
     borderRadius: theme.radii.lg,
     alignItems: "center" as const,
+    borderWidth: 2,
+    borderColor: "transparent",
   };
 
   const variants = StyleSheet.create({
     primary: {
       ...base,
       backgroundColor: theme.colors.primary,
-      paddingVertical: 18,
+      paddingVertical: 16,
     },
     secondary: {
       ...base,
       backgroundColor: theme.colors.secondary,
-      paddingVertical: 18,
+      paddingVertical: 16,
     },
     outline: {
       ...base,
       backgroundColor: "transparent",
-      borderWidth: 1,
       borderColor: theme.colors.border,
-      paddingVertical: 18,
+      paddingVertical: 16,
     },
     ghost: {
       ...base,
       backgroundColor: "transparent",
-      paddingVertical: 14,
+      paddingVertical: 12,
     },
     danger: {
       ...base,
       backgroundColor: "transparent",
-      paddingVertical: 14,
+      paddingVertical: 12,
     },
   });
 
@@ -64,8 +67,11 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       style={({ pressed }) => [
         variants[variant],
+        focused && !isDisabled && { borderColor: theme.colors.focus },
         isDisabled && { opacity: 0.5 },
         pressed && !isDisabled && { opacity: 0.7 },
         style,
