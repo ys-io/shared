@@ -1,0 +1,40 @@
+{
+  "name": "@ys-io/auth-kit",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ys-io/shared.git",
+    "directory": "packages/auth-kit"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2",
+    "@types/react": "^18",
+    "@ys-io/ui": "workspace:*",
+    "@ys-io/utils": "workspace:*",
+    "react": "^18",
+    "react-native": "^0.81",
+    "tsup": "^8",
+    "typescript": "^5",
+    "yup": "^1"
+  },
+  "peerDependencies": {
+    "@supabase/supabase-js": "^2",
+    "@ys-io/ui": ">=0.7.0",
+    "@ys-io/utils": ">=0.2.0",
+    "react": "^18 || ^19",
+    "react-native": "*",
+    "yup": "^1"
+  }
+}

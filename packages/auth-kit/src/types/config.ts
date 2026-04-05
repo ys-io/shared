@@ -1,0 +1,77 @@
+import type { ReactNode } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export interface AuthKitConfig {
+  supabase: SupabaseClient;
+  appName: string;
+  appIcon?: string;
+  appSubtitle?: string;
+  googleLogin?: boolean;
+  googleIcon?: ReactNode;
+  terms?: { content: ReactNode };
+  privacy?: { content: ReactNode };
+  rpcCheckEmailExists?: string;
+  rpcCheckEmailRegistered?: string;
+  onAuthenticated?: () => void;
+}
+
+export interface AuthKitMessages {
+  networkError?: string;
+  back?: string;
+  backToLogin?: string;
+  or?: string;
+  labelName?: string;
+  labelEmail?: string;
+  labelPassword?: string;
+  labelPasswordConfirm?: string;
+  labelNewPassword?: string;
+  labelNewPasswordConfirm?: string;
+  placeholderName?: string;
+  placeholderEmail?: string;
+  placeholderPassword?: string;
+  placeholderPasswordSignup?: string;
+  placeholderPasswordConfirm?: string;
+  btnLogin?: string;
+  btnSignup?: string;
+  btnSignupSubmit?: string;
+  btnForgotPassword?: string;
+  btnGoogleLogin?: string;
+  btnSendOtp?: string;
+  btnResendOtp?: string;
+  btnChangePassword?: string;
+  emailRequired?: string;
+  passwordRequired?: string;
+  accountNotFound?: string;
+  passwordWrong?: string;
+  emailAlreadyRegistered?: string;
+  agreeRequired?: string;
+  otpExpired?: string;
+  otpInvalid?: string;
+  resendFailed?: string;
+  timerExpired?: string;
+  otpTitle?: string;
+  otpSubtitleSuffix?: string;
+  forgotPasswordTitle?: string;
+  forgotPasswordSubtitle?: string;
+  resetPasswordTitle?: string;
+  resetPasswordSubtitle?: string;
+  passwordChangedTitle?: string;
+  passwordChangedSubtitle?: string;
+  termsAgreeAll?: string;
+  termsAgreeTos?: string;
+  termsAgreePrivacy?: string;
+  termsView?: string;
+  vNameRequired?: string;
+  vNameMin?: string;
+  vEmailRequired?: string;
+  vEmailInvalid?: string;
+  vPasswordRequired?: string;
+  vPasswordMin?: string;
+  vPasswordUppercase?: string;
+  vPasswordSpecial?: string;
+  vPasswordConfirmRequired?: string;
+  vPasswordConfirmMatch?: string;
+  pwRuleMin?: string;
+  pwRuleUppercase?: string;
+  pwRuleSpecial?: string;
+}

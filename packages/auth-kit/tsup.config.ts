@@ -1,0 +1,15 @@
+import { defineConfig } from "tsup";
+
+export default defineConfig({
+  entry: ["src/index.ts"],
+  format: ["cjs", "esm"],
+  dts: true,
+  external: [
+    "react",
+    "react-native",
+    "@supabase/supabase-js",
+    "@ys-io/ui",
+    "@ys-io/utils",
+    "yup",
+  ],
+});
