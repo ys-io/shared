@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { SafeAreaView, View, StyleSheet, Platform } from "react-native";
+import { SafeAreaView, View, ScrollView, StyleSheet, Platform } from "react-native";
 import { useTheme } from "../theme";
 import type { ScreenProps } from "../types";
 
@@ -20,7 +20,7 @@ function injectGlobalWebStyles(focusColor: string) {
   document.head.appendChild(styleEl);
 }
 
-export function Screen({ children, style }: ScreenProps) {
+export function Screen({ children, scroll = false, style }: ScreenProps) {
   const theme = useTheme();
 
   useEffect(() => {
@@ -39,6 +39,18 @@ export function Screen({ children, style }: ScreenProps) {
       alignSelf: "center",
     },
   });
+
+  if (scroll) {
+    return (
+      <SafeAreaView style={[styles.outer, style]}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, alignItems: "center" }}
+        >
+          <View style={[styles.inner, { flex: undefined }]}>{children}</View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.outer, style]}>

@@ -82,6 +82,7 @@ export interface TextProps extends RNTextProps {
 
 export interface ScreenProps {
   children: ReactNode;
+  scroll?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -93,7 +94,6 @@ export interface HeaderProps {
 export interface BodyProps {
   children: ReactNode;
   centered?: boolean;
-  scroll?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
