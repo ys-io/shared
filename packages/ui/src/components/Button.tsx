@@ -86,7 +86,11 @@ export function Button({
       onBlur={() => setFocused(false)}
       style={({ pressed }) => [
         variants[variant],
-        focused && !isDisabled && { borderColor: theme.colors.focus },
+        focused && !isDisabled && (
+          variant === "primary"
+            ? { opacity: 0.8, borderColor: "#ffffff80" }
+            : { borderColor: theme.colors.focus }
+        ),
         isDisabled && { opacity: 0.5 },
         pressed && !isDisabled && { opacity: 0.7 },
         style,
