@@ -29,7 +29,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: theme.colors.surface,
-        borderWidth: hasError ? 1 : focused ? 1 : 0,
+        borderWidth: 1,
         borderColor: hasError
           ? theme.colors.danger
           : focused
