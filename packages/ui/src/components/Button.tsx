@@ -34,7 +34,7 @@ export function Button({
   const base = {
     borderRadius: theme.radii.lg,
     alignItems: "center" as const,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: "transparent",
   };
 
