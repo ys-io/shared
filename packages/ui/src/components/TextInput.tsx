@@ -3,7 +3,6 @@ import {
   View,
   Text as RNText,
   TextInput as RNTextInput,
-  Pressable,
   StyleSheet,
   Platform,
 } from "react-native";
@@ -13,21 +12,16 @@ import type { TextInputProps } from "../types";
 
 export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   function TextInput(
-    { label, error, showPasswordToggle, containerStyle, style, secureTextEntry, ...rest },
+    { label, error, containerStyle, style, secureTextEntry, ...rest },
     ref,
   ) {
     const theme = useTheme();
     const hasError = !!error;
-    const [hidden, setHidden] = useState(true);
     const [focused, setFocused] = useState(false);
-
-    const isSecure = secureTextEntry && hidden;
 
     const styles = StyleSheet.create({
       container: {},
       inputWrapper: {
-        flexDirection: "row",
-        alignItems: "center",
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: hasError
@@ -39,7 +33,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         paddingHorizontal: theme.spacing.lg,
       },
       input: {
-        flex: 1,
         paddingVertical: theme.spacing.lg,
         fontSize: theme.fontSizes.md,
         color: theme.colors.textPrimary,
@@ -54,13 +47,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         color: theme.colors.danger,
         fontSize: theme.fontSizes.sm,
       },
-      eyeButton: {
-        padding: theme.spacing.sm,
-      },
-      eyeText: {
-        fontSize: 20,
-        color: theme.colors.textMuted,
-      },
     });
 
     return (
@@ -74,7 +60,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
           <RNTextInput
             ref={ref}
             placeholderTextColor={theme.colors.placeholder}
-            secureTextEntry={isSecure}
+            secureTextEntry={secureTextEntry}
             onFocus={(e) => {
               setFocused(true);
               rest.onFocus?.(e);
@@ -86,14 +72,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             style={[styles.input, style]}
             {...rest}
           />
-          {showPasswordToggle && secureTextEntry ? (
-            <Pressable
-              onPress={() => setHidden(!hidden)}
-              style={styles.eyeButton}
-            >
-              <RNText style={styles.eyeText}>{hidden ? "◉" : "◎"}</RNText>
-            </Pressable>
-          ) : null}
         </View>
         {hasError ? <RNText style={styles.errorText}>{error}</RNText> : null}
       </View>
