@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { View, TextInput as RNTextInput, Platform, StyleSheet } from "react-native";
-import { Button, TextInput, Text, Screen, Body, Divider, LoadingScreen } from "@ys-io/ui";
+import { Button, TextInput, Text, Screen, Body, Divider, LoadingScreen, useTheme } from "@ys-io/ui";
 import type { AuthKitConfig, AuthKitMessages } from "./types/config";
 import { AuthKitProvider, useAuthKit } from "./hooks/useAuthKitContext";
 import { useAuthKitFlow } from "./hooks/useAuthKitFlow";
@@ -29,7 +29,6 @@ function AuthKitInner({ children }: { children: ReactNode }) {
   if (flow.auth.isLoading) return <LoadingScreen />;
   if (flow.auth.isAuthenticated) return <>{children}</>;
 
-  // Terms / Privacy
   if (flow.view === "terms" && config.terms) {
     return (
       <Screen scroll>
@@ -44,30 +43,15 @@ function AuthKitInner({ children }: { children: ReactNode }) {
       </Screen>
     );
   }
-
-  // Signup OTP
   if (flow.view === "signupOtp") {
-    return <OtpView email={flow.email} type="signup" onVerified={() => {}} onBack={() => flow.setView("signup")} msg={msg} config={config} />;
+    return <OtpView email={flow.email} type="signup" onVerified={() => {}} onBack={() => flow.setView("signup")} />;
   }
-
-  // Forgot password flow
   if (flow.view === "forgotPassword") {
     if (flow.fpStep === "otp") {
-      return <OtpView email={flow.fpEmail} type="recovery" onVerified={() => flow.setFpStep("reset")} onBack={flow.handleFpOtpBack} msg={msg} config={config} />;
+      return <OtpView email={flow.fpEmail} type="recovery" onVerified={() => flow.setFpStep("reset")} onBack={flow.handleFpOtpBack} />;
     }
     if (flow.fpStep === "reset") {
-      return (
-        <Screen>
-          <Body centered>
-            <Text variant="title" align="center" style={s.mb8}>{msg.resetPasswordTitle}</Text>
-            <Text variant="subtitle" align="center" style={s.mb40}>{msg.resetPasswordSubtitle}</Text>
-            <TextInput ref={flow.rpPasswordRef} label={msg.labelNewPassword} placeholder={msg.placeholderPasswordSignup} value={flow.rpPassword} onChangeText={(v) => { flow.setRpPassword(v); flow.rpClearError("password"); }} secureTextEntry onSubmitEditing={flow.handleRpSubmit} error={flow.rpErrors.password} containerStyle={s.mb4} />
-            <PasswordStrengthView password={flow.rpPassword} rules={flow.passwordRules} />
-            <TextInput ref={flow.rpConfirmRef} label={msg.labelNewPasswordConfirm} placeholder={msg.placeholderPasswordConfirm} value={flow.rpConfirm} onChangeText={(v) => { flow.setRpConfirm(v); flow.rpClearError("passwordConfirm"); }} secureTextEntry onSubmitEditing={flow.handleRpSubmit} error={flow.rpErrors.passwordConfirm} containerStyle={s.mb32} />
-            <Button title={msg.btnChangePassword} onPress={flow.handleRpSubmit} disabled={flow.rpLoading} loading={flow.rpLoading} variant="primary" />
-          </Body>
-        </Screen>
-      );
+      return <ResetPasswordView flow={flow} />;
     }
     if (flow.fpStep === "done") {
       return (
@@ -80,21 +64,9 @@ function AuthKitInner({ children }: { children: ReactNode }) {
         </Screen>
       );
     }
-    // email step
-    return (
-      <Screen>
-        <Body centered>
-          <Text variant="title" align="center" style={s.mb8}>{msg.forgotPasswordTitle}</Text>
-          <Text variant="subtitle" align="center" style={s.mb40}>{msg.forgotPasswordSubtitle}</Text>
-          <TextInput ref={flow.fpEmailRef} label={msg.labelEmail} placeholder={msg.placeholderEmail} value={flow.fpEmail} onChangeText={(v) => { flow.setFpEmail(v); flow.setFpError(""); }} autoCapitalize="none" keyboardType="email-address" onSubmitEditing={flow.handleFpSubmit} error={flow.fpError} containerStyle={s.mb32} />
-          <Button title={msg.btnSendOtp} onPress={flow.handleFpSubmit} disabled={flow.fpLoading} loading={flow.fpLoading} variant="primary" style={s.mb12} />
-          <Button title={msg.backToLogin} onPress={() => flow.setView("login")} variant="secondary" />
-        </Body>
-      </Screen>
-    );
+    return <ForgotPasswordView flow={flow} />;
   }
 
-  // Main login/signup
   return (
     <Screen scroll>
       <Body centered>
@@ -114,15 +86,13 @@ function AuthKitInner({ children }: { children: ReactNode }) {
             <TextInput ref={flow.passwordConfirmRef} label={msg.labelPasswordConfirm} placeholder={msg.placeholderPasswordConfirm} value={flow.passwordConfirm} onChangeText={(v) => { flow.setPasswordConfirm(v); flow.clearError("passwordConfirm"); }} secureTextEntry onSubmitEditing={flow.handleSubmit} error={flow.errors.passwordConfirm} containerStyle={s.mb16} />
             {(config.terms || config.privacy) && (
               <TermsView
-                agreedTerms={flow.agreedTerms}
-                agreedPrivacy={flow.agreedPrivacy}
+                agreedTerms={flow.agreedTerms} agreedPrivacy={flow.agreedPrivacy}
                 onToggleAll={() => { const n = !(flow.agreedTerms && flow.agreedPrivacy); flow.setAgreedTerms(n); flow.setAgreedPrivacy(n); flow.clearError("agree"); }}
                 onToggleTerms={() => { flow.setAgreedTerms(!flow.agreedTerms); flow.clearError("agree"); }}
                 onTogglePrivacy={() => { flow.setAgreedPrivacy(!flow.agreedPrivacy); flow.clearError("agree"); }}
                 onViewTerms={config.terms ? () => flow.setView("terms") : undefined}
                 onViewPrivacy={config.privacy ? () => flow.setView("privacy") : undefined}
                 error={flow.errors.agree}
-                msg={msg}
               />
             )}
           </>
@@ -154,90 +124,92 @@ function AuthKitInner({ children }: { children: ReactNode }) {
   );
 }
 
-// --- Internal components ---
+// --- Internal sub-views ---
 
-function PasswordStrengthView({ password, rules }: { password: string; rules: { label: string; test: (p: string) => boolean }[] }) {
-  if (password === undefined) return null;
+function ForgotPasswordView({ flow }: { flow: ReturnType<typeof useAuthKitFlow> }) {
+  const { msg } = useAuthKit();
   return (
-    <View style={s.pwContainer}>
-      {rules.map((rule) => {
-        const ok = rule.test(password);
-        return (
-          <View key={rule.label} style={s.pwRow}>
-            <View style={s.pwIcon}><Text variant="caption" color={ok ? "#22c55e" : "#636366"} style={s.pwText}>{ok ? "✓" : "○"}</Text></View>
-            <Text variant="caption" color={ok ? "#22c55e" : "#636366"} style={s.pwText}>{rule.label}</Text>
-          </View>
-        );
-      })}
-    </View>
+    <Screen>
+      <Body centered>
+        <Text variant="title" align="center" style={s.mb8}>{msg.forgotPasswordTitle}</Text>
+        <Text variant="subtitle" align="center" style={s.mb40}>{msg.forgotPasswordSubtitle}</Text>
+        <TextInput ref={flow.fpEmailRef} label={msg.labelEmail} placeholder={msg.placeholderEmail} value={flow.fpEmail} onChangeText={(v) => { flow.setFpEmail(v); flow.setFpError(""); }} autoCapitalize="none" keyboardType="email-address" onSubmitEditing={flow.handleFpSubmit} error={flow.fpError} containerStyle={s.mb32} />
+        <Button title={msg.btnSendOtp} onPress={flow.handleFpSubmit} disabled={flow.fpLoading} loading={flow.fpLoading} variant="primary" style={s.mb12} />
+        <Button title={msg.backToLogin} onPress={() => flow.setView("login")} variant="secondary" />
+      </Body>
+    </Screen>
   );
 }
 
-function TermsView({ agreedTerms, agreedPrivacy, onToggleAll, onToggleTerms, onTogglePrivacy, onViewTerms, onViewPrivacy, error, msg }: any) {
+function ResetPasswordView({ flow }: { flow: ReturnType<typeof useAuthKitFlow> }) {
+  const { msg } = useAuthKit();
   return (
-    <View style={s.termsContainer}>
-      <TermsCheckbox checked={agreedTerms && agreedPrivacy} onPress={onToggleAll} label={msg.termsAgreeAll} bold />
-      <View style={s.termsDivider} />
-      <TermsRow checked={agreedTerms} onPress={onToggleTerms} label={msg.termsAgreeTos} onView={onViewTerms} viewLabel={msg.termsView} />
-      <TermsRow checked={agreedPrivacy} onPress={onTogglePrivacy} label={msg.termsAgreePrivacy} onView={onViewPrivacy} viewLabel={msg.termsView} />
-      {error ? <Text variant="caption" color="#ff453a" style={s.mt8}>{error}</Text> : null}
-    </View>
+    <Screen>
+      <Body centered>
+        <Text variant="title" align="center" style={s.mb8}>{msg.resetPasswordTitle}</Text>
+        <Text variant="subtitle" align="center" style={s.mb40}>{msg.resetPasswordSubtitle}</Text>
+        <TextInput ref={flow.rpPasswordRef} label={msg.labelNewPassword} placeholder={msg.placeholderPasswordSignup} value={flow.rpPassword} onChangeText={(v) => { flow.setRpPassword(v); flow.rpClearError("password"); }} secureTextEntry onSubmitEditing={flow.handleRpSubmit} error={flow.rpErrors.password} containerStyle={s.mb4} />
+        <PasswordStrengthView password={flow.rpPassword} rules={flow.passwordRules} />
+        <TextInput ref={flow.rpConfirmRef} label={msg.labelNewPasswordConfirm} placeholder={msg.placeholderPasswordConfirm} value={flow.rpConfirm} onChangeText={(v) => { flow.setRpConfirm(v); flow.rpClearError("passwordConfirm"); }} secureTextEntry onSubmitEditing={flow.handleRpSubmit} error={flow.rpErrors.passwordConfirm} containerStyle={s.mb32} />
+        <Button title={msg.btnChangePassword} onPress={flow.handleRpSubmit} disabled={flow.rpLoading} loading={flow.rpLoading} variant="primary" />
+      </Body>
+    </Screen>
   );
 }
 
-function TermsCheckbox({ checked, onPress, label, bold }: { checked: boolean; onPress: () => void; label: string; bold?: boolean }) {
-  return (
-    <View style={s.termsRow}>
-      <View style={[s.checkbox, checked && s.checkboxChecked]}>{checked && <Text variant="caption" color="#fff">✓</Text>}</View>
-      <Text variant={bold ? "body" : "caption"} onPress={onPress} style={bold ? s.termsBold : undefined}>{label}</Text>
-    </View>
-  );
-}
-
-function TermsRow({ checked, onPress, label, onView, viewLabel }: any) {
-  return (
-    <View style={s.termsRowBetween}>
-      <View style={s.termsRow}>
-        <View style={[s.checkbox, checked && s.checkboxChecked]}>{checked && <Text variant="caption" color="#fff">✓</Text>}</View>
-        <Text variant="caption" onPress={onPress}>{label}</Text>
-      </View>
-      {onView && <Text variant="caption" color="#6366f1" onPress={onView}>{viewLabel}</Text>}
-    </View>
-  );
-}
-
-function OtpView({ email, type, onVerified, onBack, msg, config }: any) {
+function OtpView({ email, type, onVerified, onBack }: { email: string; type: string; onVerified: () => void; onBack: () => void }) {
+  const { config, msg } = useAuthKit();
+  const theme = useTheme();
   const { remaining, expired, formatTime, restart } = useOtpTimer();
+
   const submitCode = async (token: string) => {
     if (expired) { setError(msg.otpExpired); return; }
     try {
-      const { error } = await config.supabase.auth.verifyOtp({ email, token, type });
+      const { error } = await config.supabase.auth.verifyOtp({ email, token, type: type as any });
       if (error) { setError(msg.otpInvalid); resetCode(); }
       else onVerified();
     } catch { setError(msg.networkError); }
   };
+
   const { code, error, setError, inputRefs, resetCode, handleChange, handleKeyPress } = useOtpInput(submitCode);
+
   const handleResend = async () => {
     setError("");
     try {
       if (type === "signup") await config.supabase.auth.resend({ type: "signup", email });
       else await config.supabase.auth.resetPasswordForEmail(email);
-      resetCode();
-      restart();
+      resetCode(); restart();
     } catch { setError(msg.resendFailed); }
   };
+
   return (
     <Screen>
       <Body centered>
         <Text variant="title" align="center" style={s.mb8}>{msg.otpTitle}</Text>
         <Text variant="subtitle" align="center" style={s.mb8}>{email}{msg.otpSubtitleSuffix}</Text>
-        <Text variant="body" align="center" color={expired ? "#ff453a" : "#6366f1"} style={s.timer}>{expired ? msg.timerExpired : formatTime(remaining)}</Text>
+        <Text variant="body" align="center" color={expired ? theme.colors.danger : theme.colors.focus} style={s.timer}>{expired ? msg.timerExpired : formatTime(remaining)}</Text>
         <View style={s.otpContainer}>
           {code.map((digit: string, i: number) => (
-            <RNTextInput key={i} ref={(ref) => { inputRefs.current[i] = ref; }} style={[s.otpInput, digit ? s.otpFilled : null, error ? s.otpError : null, Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}]} value={digit} onChangeText={(v) => handleChange(v, i)} onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)} keyboardType="number-pad" maxLength={i === 0 ? 6 : 1} selectTextOnFocus />
+            <RNTextInput
+              key={i}
+              ref={(ref) => { inputRefs.current[i] = ref; }}
+              style={[
+                s.otpInput,
+                { backgroundColor: theme.colors.surface, color: theme.colors.textPrimary },
+                digit ? { borderColor: theme.colors.focus } : null,
+                error ? { borderColor: theme.colors.danger } : null,
+                Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {},
+              ]}
+              value={digit}
+              onChangeText={(v) => handleChange(v, i)}
+              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
+              keyboardType="number-pad"
+              maxLength={i === 0 ? 6 : 1}
+              selectTextOnFocus
+            />
           ))}
         </View>
-        {error ? <Text variant="caption" color="#ff453a" align="center" style={s.mb16}>{error}</Text> : null}
+        {error ? <Text variant="caption" color={theme.colors.danger} align="center" style={s.mb16}>{error}</Text> : null}
         <View style={s.mb32} />
         {expired && <Button title={msg.btnResendOtp} onPress={handleResend} variant="primary" style={s.mb12} />}
         <Button title={msg.back} onPress={onBack} variant="secondary" />
@@ -246,6 +218,69 @@ function OtpView({ email, type, onVerified, onBack, msg, config }: any) {
   );
 }
 
+function PasswordStrengthView({ password, rules }: { password: string; rules: { label: string; test: (p: string) => boolean }[] }) {
+  const theme = useTheme();
+  if (password === undefined) return null;
+  return (
+    <View style={s.pwContainer}>
+      {rules.map((rule) => {
+        const ok = rule.test(password);
+        const color = ok ? "#22c55e" : theme.colors.textMuted;
+        return (
+          <View key={rule.label} style={s.pwRow}>
+            <View style={s.pwIcon}><Text variant="caption" color={color} style={s.pwText}>{ok ? "✓" : "○"}</Text></View>
+            <Text variant="caption" color={color} style={s.pwText}>{rule.label}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+function TermsView({ agreedTerms, agreedPrivacy, onToggleAll, onToggleTerms, onTogglePrivacy, onViewTerms, onViewPrivacy, error }: any) {
+  const { msg } = useAuthKit();
+  const theme = useTheme();
+
+  const checkboxStyle = [s.checkbox, { borderColor: theme.colors.textMuted }];
+  const checkedStyle = { backgroundColor: theme.colors.focus, borderColor: theme.colors.focus };
+
+  return (
+    <View style={s.termsContainer}>
+      <View style={s.termsRow}>
+        <View style={[...checkboxStyle, agreedTerms && agreedPrivacy && checkedStyle]}>
+          {agreedTerms && agreedPrivacy && <Text variant="caption" color={theme.colors.primaryForeground}>✓</Text>}
+        </View>
+        <Text variant="body" onPress={onToggleAll} style={s.termsBold}>{msg.termsAgreeAll}</Text>
+      </View>
+
+      <View style={[s.termsDivider, { backgroundColor: theme.colors.border }]} />
+
+      <View style={s.termsRowBetween}>
+        <View style={s.termsRow}>
+          <View style={[...checkboxStyle, agreedTerms && checkedStyle]}>
+            {agreedTerms && <Text variant="caption" color={theme.colors.primaryForeground}>✓</Text>}
+          </View>
+          <Text variant="caption" onPress={onToggleTerms}>{msg.termsAgreeTos}</Text>
+        </View>
+        {onViewTerms && <Text variant="caption" color={theme.colors.focus} onPress={onViewTerms}>{msg.termsView}</Text>}
+      </View>
+
+      <View style={s.termsRowBetween}>
+        <View style={s.termsRow}>
+          <View style={[...checkboxStyle, agreedPrivacy && checkedStyle]}>
+            {agreedPrivacy && <Text variant="caption" color={theme.colors.primaryForeground}>✓</Text>}
+          </View>
+          <Text variant="caption" onPress={onTogglePrivacy}>{msg.termsAgreePrivacy}</Text>
+        </View>
+        {onViewPrivacy && <Text variant="caption" color={theme.colors.focus} onPress={onViewPrivacy}>{msg.termsView}</Text>}
+      </View>
+
+      {error ? <Text variant="caption" color={theme.colors.danger} style={s.mt8}>{error}</Text> : null}
+    </View>
+  );
+}
+
+// Layout-only styles (no colors)
 const s = StyleSheet.create({
   titleMargin: { marginBottom: 8, marginTop: 40 },
   mb4: { marginBottom: 4 },
@@ -258,9 +293,7 @@ const s = StyleSheet.create({
   mt24: { marginTop: 24 },
   timer: { marginBottom: 32, fontSize: 20, fontWeight: "bold" },
   otpContainer: { flexDirection: "row", justifyContent: "center", gap: 8, marginBottom: 16 },
-  otpInput: { width: 48, height: 56, backgroundColor: "#1c1c1e", borderRadius: 12, borderWidth: 1, borderColor: "transparent", textAlign: "center", fontSize: 24, fontWeight: "bold", color: "#ffffff" },
-  otpFilled: { borderColor: "#6366f1" },
-  otpError: { borderColor: "#ff453a" },
+  otpInput: { width: 48, height: 56, borderRadius: 12, borderWidth: 1, borderColor: "transparent", textAlign: "center", fontSize: 24, fontWeight: "bold" },
   pwContainer: { marginTop: 4, marginBottom: 16 },
   pwRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   pwIcon: { width: 14, alignItems: "center" },
@@ -268,8 +301,7 @@ const s = StyleSheet.create({
   termsContainer: { marginBottom: 24 },
   termsRow: { flexDirection: "row", alignItems: "center", paddingVertical: 10, gap: 12 },
   termsRowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  termsDivider: { height: 1, backgroundColor: "#2c2c2e", marginVertical: 4 },
+  termsDivider: { height: 1, marginVertical: 4 },
   termsBold: { fontSize: 14 },
-  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 1, borderColor: "#636366", alignItems: "center", justifyContent: "center" },
-  checkboxChecked: { backgroundColor: "#6366f1", borderColor: "#6366f1" },
+  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 1, alignItems: "center", justifyContent: "center" },
 });
