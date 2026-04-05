@@ -12,7 +12,12 @@ function injectGlobalWebStyles(focusColor: string) {
 
   const css = `
     *:focus { outline: none; }
-    input:focus, textarea:focus, [tabindex]:focus {
+    *:focus-visible {
+      outline: 2px solid ${focusColor};
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+    input:focus-visible, textarea:focus-visible {
       outline: none;
     }
     ::selection {
