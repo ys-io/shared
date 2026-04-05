@@ -3,6 +3,7 @@ import { View, TextInput as RNTextInput, Platform, StyleSheet } from "react-nati
 import { Button, TextInput, Text, Screen, Body, Divider, LoadingScreen, useTheme } from "@ys-io/ui";
 import type { AuthKitConfig, AuthKitMessages } from "./types/config";
 import { AuthKitProvider, useAuthKit } from "./hooks/useAuthKitContext";
+import { AuthContextProvider } from "./hooks/useAuth";
 import { useAuthKitFlow } from "./hooks/useAuthKitFlow";
 import { useOtpTimer } from "./hooks/useOtpTimer";
 import { useOtpInput } from "./hooks/useOtpInput";
@@ -27,7 +28,9 @@ function AuthKitInner({ children }: { children: ReactNode }) {
   const { config, msg } = useAuthKit();
 
   if (flow.auth.isLoading) return <LoadingScreen />;
-  if (flow.auth.isAuthenticated) return <>{children}</>;
+  if (flow.auth.isAuthenticated) {
+    return <AuthContextProvider value={flow.auth}>{children}</AuthContextProvider>;
+  }
 
   if (flow.view === "terms" && config.terms) {
     return (
