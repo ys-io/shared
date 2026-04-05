@@ -15,6 +15,8 @@ export interface ThemeTokens {
     surface: string;
     primary: string;
     primaryForeground: string;
+    secondary: string;
+    secondaryForeground: string;
     danger: string;
     textPrimary: string;
     textSecondary: string;
@@ -57,7 +59,7 @@ export interface ThemeTokens {
 export interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: "primary" | "outline" | "ghost" | "danger";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
   disabled?: boolean;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;

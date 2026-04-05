@@ -23,7 +23,12 @@ export function Button({
   const variants = StyleSheet.create({
     primary: {
       ...base,
-      backgroundColor: theme.colors.surface,
+      backgroundColor: theme.colors.primary,
+      paddingVertical: 18,
+    },
+    secondary: {
+      ...base,
+      backgroundColor: theme.colors.secondary,
       paddingVertical: 18,
     },
     outline: {
@@ -46,7 +51,8 @@ export function Button({
   });
 
   const textColors: Record<string, string> = {
-    primary: theme.colors.textPrimary,
+    primary: theme.colors.primaryForeground,
+    secondary: theme.colors.secondaryForeground,
     outline: theme.colors.textPrimary,
     ghost: theme.colors.textSecondary,
     danger: theme.colors.danger,

@@ -4,8 +4,10 @@ export const defaultTheme: ThemeTokens = {
   colors: {
     background: "#ffffff",
     surface: "#fafafa",
-    primary: "#000000",
+    primary: "#6366f1",
     primaryForeground: "#ffffff",
+    secondary: "#e5e5e5",
+    secondaryForeground: "#000000",
     danger: "#ee0000",
     textPrimary: "#000000",
     textSecondary: "#666666",
