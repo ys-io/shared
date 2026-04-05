@@ -91,7 +91,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
               onPress={() => setHidden(!hidden)}
               style={styles.eyeButton}
             >
-              <RNText style={styles.eyeText}>{hidden ? "👁" : "👁‍🗨"}</RNText>
+              <RNText style={styles.eyeText}>{hidden ? "◉" : "◎"}</RNText>
             </Pressable>
           ) : null}
         </View>
