@@ -87,7 +87,7 @@ export function Button({
       style={({ pressed }) => [
         variants[variant],
         focused && !isDisabled && {
-          borderColor: variant === "primary" ? "#ffffff" : theme.colors.focus,
+          borderColor: variant === "primary" ? "#b7b9f0" : theme.colors.focus,
         },
         isDisabled && { opacity: 0.5 },
         pressed && !isDisabled && { opacity: 0.7 },
